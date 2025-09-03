@@ -1,0 +1,32 @@
+.event-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  border: 1px solid #f0f2f5;
+  border-radius: 12px;
+  background: #ffffff;
+
+  & .stat {
+    padding: 16px;
+    text-align: center;
+  }
+
+  & .stat-divider {
+    width: 1px;
+    height: 100%;
+    background: #f0f2f5;
+  }
+
+  & .stat-value {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  & .stat-label {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+}

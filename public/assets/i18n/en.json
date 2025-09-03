@@ -1,0 +1,107 @@
+{
+  "shell": {
+    "brandTitle": "Event Manager",
+    "nav": {
+      "events": "Events",
+      "admin": "Admin",
+      "dashboard": "Dashboard",
+      "logOut": "Log Out"
+    }
+  },
+  "admin": {
+    "pages": {
+      "login": {
+        "title": "Admin",
+        "subtitle": "Please login to manage events",
+        "email": "E-mail",
+        "password": "Password",
+        "button": {
+          "login": "Login"
+        },
+        "validation": {
+          "emailRequired": "E-mail is required",
+          "emailInvalid": "E-mail must be valid",
+          "passwordRequired": "Password is required",
+          "passwordMinLength": "Password must be at least 6 characters"
+        }
+      },
+      "dashboard": {
+        "button": {
+          "addEvent": "Add Event"
+        }
+      },
+      "addEvent": {
+        "title": "Add Event",
+        "eventName": "Event name",
+        "startsAt": "Starts At",
+        "capacity": "Capacity",
+        "button": {
+          "back": "Back",
+          "createEvent": "Create event"
+        },
+        "validation": {
+          "nameRequired": "Event name is required",
+          "startsAtRequired": "Starts at is required",
+          "capacityRequired": "Capacity is required"
+        },
+        "notify": {
+          "success": "Event created successfully",
+          "error": "Error creating event"
+        }
+      }
+    }
+  },
+  "events": {
+    "pages": {
+      "eventList": {
+       "noEvents": "There are no events at the moment.",
+       "button": {
+         "register": "Register"
+       }
+      },
+      "registrations": {
+        "title": "Event Registrations",
+        "button": {
+          "back": "Back",
+          "register": "Register"
+        },
+        "firstName": "First name",
+        "lastName": "Last name",
+        "personalCode": "Personal code",
+        "validation": {
+          "firstNameRequired": "First name is required",
+          "lastNameRequired": "Last name is required",
+          "personalCodeRequired": "Personal code is required"
+        },
+        "notify": {
+          "success": "You have successfully registered for the event!",
+          "error": "Error registering for the event"
+        }
+      }
+    }
+  },
+  "shared": {
+    "ui": {
+      "eventCardHeader":{
+        "availableSpotStatus": {
+          "full": "Full",
+          "open": "Open"
+        }
+      },
+      "eventCardMeta": {
+        "startsAt": "Starts at",
+        "capacity": "Capacity",
+        "places": "places"
+      },
+      "eventCardStats": {
+        "registered": "Registered",
+        "availableSpots": "Available spots"
+      }
+    }
+  },
+  "errors": {
+    "already.registered": "You are already registered for this event.",
+    "event.not.found": "Event not found.",
+    "internal.error": "Something went wrong. Please try again later."
+  }
+}

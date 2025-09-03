@@ -1,0 +1,17 @@
+
+<div class="dashboard-header">
+  <button (click)="navigateToAddEvent()" class="btn-primary">
+    {{ 'admin.pages.dashboard.button.addEvent' | translate }}
+  </button>
+</div>
+
+<app-event-card-grid>
+  @for (event of events(); track event.id; let i = $index) {
+    <app-event-card-wrapper [colorCode]="i">
+      <app-event-card-header [title]="event.name" [availableSeats]="event.availableSeats"></app-event-card-header>
+      <app-event-card-meta [startsAt]="event.startsAt" [capacity]="event.capacity"></app-event-card-meta>
+      <app-event-card-stats [registrationsCount]="event.registrationsCount"
+                      [availableSeats]="event.availableSeats"></app-event-card-stats>
+    </app-event-card-wrapper>
+  }
+</app-event-card-grid>

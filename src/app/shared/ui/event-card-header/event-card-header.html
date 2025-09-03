@@ -1,0 +1,8 @@
+<div class="event-card-header">
+  <h3 class="event-card-title">{{ title }}</h3>
+  <span class="badge" [class.badge--full]="!availableSeats">
+      {{ availableSeats > 0
+    ? ('shared.ui.eventCardHeader.availableSpotStatus.open' | translate)
+    : ('shared.ui.eventCardHeader.availableSpotStatus.full' | translate) }}
+  </span>
+</div>

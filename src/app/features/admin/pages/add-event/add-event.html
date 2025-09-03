@@ -1,0 +1,58 @@
+<section class="add-event-wrapper">
+  @if (isLoggedIn()) {
+    <div class="form-wrapper">
+      <button class="simple-link" (click)="navigateToDashboard()">{{ 'admin.pages.addEvent.button.back' | translate}}</button>
+      <h1>{{ 'admin.pages.addEvent.title' | translate }}</h1>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="text-input-wrapper" [class.invalid]="form.controls.name.touched && form.controls.name.invalid">
+          <label for="name">{{ 'admin.pages.addEvent.eventName' | translate}}</label>
+          <input id="name"
+                 type="text"
+                 formControlName="name"
+                 inputmode="text"/>
+
+          @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+            <div class="error">{{ 'admin.pages.addEvent.validation.nameRequired' | translate}}</div>
+          }
+        </div>
+
+        <div class="text-input-wrapper"
+             [class.invalid]="form.controls.startsAt.touched && form.controls.startsAt.invalid">
+          <label for="startsAt">{{ 'admin.pages.addEvent.startsAt' | translate}}</label>
+          <input id="startsAt"
+                 type="datetime-local"
+                 formControlName="startsAt"
+                 autocomplete="off"
+          />
+
+          @if (form.controls.startsAt.touched && form.controls.startsAt.hasError('required')) {
+            <div class="error">{{ 'admin.pages.addEvent.validation.startsAtRequired' | translate}}</div>
+          }
+        </div>
+
+        <div class="text-input-wrapper"
+             [class.invalid]="form.controls.capacity.touched && form.controls.capacity.invalid">
+          <label for="capacity">{{ 'admin.pages.addEvent.capacity' | translate}}</label>
+          <input id="capacity"
+                 type="number"
+                 formControlName="capacity"
+                 autocomplete="off"
+                 inputmode="numeric"/>
+
+          @if (form.controls.capacity.touched && form.controls.capacity.hasError('required')) {
+            <div class="error">{{ 'admin.pages.addEvent.validation.capacityRequired' | translate}}</div>
+          }
+        </div>
+
+        <button class="btn-primary" type="submit" [disabled]="loading || form.invalid">
+          @if (loading) {
+            <span class="spinner" aria-hidden="true"></span>
+          }
+          <span>{{ 'admin.pages.addEvent.button.createEvent' | translate}}</span>
+        </button>
+      </form>
+    </div>
+  }
+</section>
+
+

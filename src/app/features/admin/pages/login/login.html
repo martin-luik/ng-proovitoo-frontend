@@ -1,0 +1,52 @@
+<section class="auth-wrap">
+  <div class="form-wrapper" aria-labelledby="loginTitle">
+    <h1 id="loginTitle">{{ 'admin.pages.login.title' | translate }}</h1>
+    <p class="hint">{{ 'admin.pages.login.subtitle' | translate }}</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="loginTitle">
+      <div class="text-input-wrapper" [class.invalid]="form.controls.email.touched && form.controls.email.invalid">
+        <label for="email">{{ 'admin.pages.login.email' | translate }}</label>
+        <input id="email"
+               type="email"
+               formControlName="email"
+               placeholder="admin@example.com"
+               autocomplete="username"
+               inputmode="email" />
+
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          <div class="error">{{ 'admin.pages.login.validation.emailRequired' | translate }}</div>
+        }
+        @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+          <div class="error">{{ 'admin.pages.login.validation.emailInvalid' | translate }}</div>
+        }
+      </div>
+
+      <div class="text-input-wrapper" [class.invalid]="form.controls.password.touched && form.controls.password.invalid">
+        <label for="password">{{ 'admin.pages.login.password' | translate }}</label>
+        <input id="password"
+               type="password"
+               formControlName="password"
+               placeholder="••••••••"
+               autocomplete="current-password" />
+
+        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+          <div class="error">{{ 'admin.pages.login.validation.passwordRequired' | translate }}</div>
+        }
+        @if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+          <div class="error">{{ 'admin.pages.login.validation.passwordMinLength' | translate }}</div>
+        }
+      </div>
+
+      <button class="btn-primary" type="submit" [disabled]="loading || form.invalid">
+        @if (loading) {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        <span>{{ 'admin.pages.login.button.login' | translate }}</span>
+      </button>
+
+      @if (errorMsg) {
+        <p class="server-error">{{ errorMsg }}</p>
+      }
+    </form>
+  </div>
+</section>

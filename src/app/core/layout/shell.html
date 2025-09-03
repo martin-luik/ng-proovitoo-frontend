@@ -1,0 +1,23 @@
+<header class="app-header">
+  <nav class="topbar" role="navigation" aria-label="Main navigation">
+    <a class="brand" routerLink="/" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active">
+      <span class="brand-text">{{ 'shell.brandTitle' | translate }}</span>
+    </a>
+
+    <div class="nav-links">
+      @if (!auth.isLoggedIn()) {
+        <a routerLink="/" routerLinkActive="active"
+           [routerLinkActiveOptions]="{ exact: true }">{{ 'shell.nav.events' | translate }}</a>
+        <a routerLink="/admin" routerLinkActive="active">{{ 'shell.nav.admin' | translate }}</a>
+      } @else {
+        <a routerLink="/admin/dashboard" routerLinkActive="active">{{ 'shell.nav.dashboard' | translate}}</a>
+        <button type="button" class="btn btn-ghost" (click)="logout()">{{ 'shell.nav.logOut' | translate }}</button>
+      }
+    </div>
+  </nav>
+</header>
+
+<main class="container">
+  <router-outlet/>
+  <app-toast-container></app-toast-container>
+</main>

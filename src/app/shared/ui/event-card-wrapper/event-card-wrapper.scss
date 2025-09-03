@@ -1,0 +1,42 @@
+.event-card-wrapper {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
+  }
+}
+
+.event-card-wrapper::before {
+  content: "";
+  display: block;
+  height: 6px;
+  margin: -24px -24px 16px -24px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  background: #f1f5f9;
+}
+
+.accent-0::before { background: #fde68a; }
+.accent-1::before { background: #bfdbfe; }
+.accent-2::before { background: #c7f9cc; }
+.accent-3::before { background: #fbcfe8; }
+.accent-4::before { background: #fecaca; }
+.accent-5::before { background: #ddd6fe; }
+
+@media (max-width: 420px) {
+  .event-card-wrapper {
+    padding: 20px;
+    gap: 16px;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
