@@ -1,0 +1,8 @@
+.auth-wrap {
+  display: grid;
+  place-items: start center;
+  padding: 48px 16px 80px;
+}
+
+h1 { margin: 0 0 4px; font-size: 24px; font-weight: 700; }
+.hint { margin: 0 0 20px; color: var(--muted); }

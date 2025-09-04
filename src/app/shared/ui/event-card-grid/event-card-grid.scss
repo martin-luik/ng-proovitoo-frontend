@@ -1,0 +1,7 @@
+.event-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}

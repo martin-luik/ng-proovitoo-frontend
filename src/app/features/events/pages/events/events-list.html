@@ -1,0 +1,27 @@
+<div class="container">
+  @if (events().length > 0) {
+    <app-event-card-grid>
+      @for (event of events(); track event.id; let i = $index) {
+        <app-event-card-wrapper [colorCode]="i">
+          <app-event-card-header [title]="event.title" [availableSeats]="event.availableSeats"></app-event-card-header>
+          <app-event-card-meta [startAt]="event.startAt" [capacity]="event.capacity"></app-event-card-meta>
+          <app-event-card-stats [registrationsCount]="event.registrationsCount"
+                          [availableSeats]="event.availableSeats"></app-event-card-stats>
+
+          <div class="card-actions">
+            <button
+              (click)="navigateToRegistrations(event.id)"
+              [disabled]="!event.availableSeats"
+              class="btn-primary"
+            >
+              Register
+            </button>
+          </div>
+        </app-event-card-wrapper>
+      }
+    </app-event-card-grid>
+  } @else {
+    <p>{{ 'events.pages.eventList.noEvents' | translate}}</p>
+  }
+</div>
+

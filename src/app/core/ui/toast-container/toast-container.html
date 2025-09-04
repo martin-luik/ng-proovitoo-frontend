@@ -1,0 +1,8 @@
+<section class="toast-wrap" aria-live="polite" aria-atomic="true">
+  @for (t of notify.toasts(); track t.id) {
+    <div class="toast" [ngClass]="t.type" role="status">
+      <div class="toast-text">{{ t.text }}</div>
+      <button class="toast-close" type="button" (click)="notify.dismiss(t.id)" aria-label="Close">×</button>
+    </div>
+  }
+</section>

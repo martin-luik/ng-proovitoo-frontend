@@ -1,0 +1,53 @@
+<section class="registration-wrapper">
+  <div class="form-wrapper">
+    <button class="simple-link" (click)="navigateToEvents()">{{ 'events.pages.registrations.button.back' | translate}}</button>
+    <h1>{{ 'events.pages.registrations.title' | translate }}</h1>
+    <form [formGroup]="form" (ngSubmit)="register(id)">
+      <div class="text-input-wrapper" [class.invalid]="form.controls.firstName.touched && form.controls.firstName.invalid">
+        <label for="firstName">{{ 'events.pages.registrations.firstName' | translate }}</label>
+        <input id="firstName"
+               type="text"
+               formControlName="firstName"
+               autocomplete="given-name"
+               inputmode="text"/>
+
+        @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+          <div class="error">{{ 'events.pages.registrations.validation.firstNameRequired' | translate}}</div>
+        }
+      </div>
+
+      <div class="text-input-wrapper" [class.invalid]="form.controls.lastName.touched && form.controls.lastName.invalid">
+        <label for="lastName">{{ 'events.pages.registrations.lastName' | translate}}</label>
+        <input id="lastName"
+               type="text"
+               formControlName="lastName"
+               autocomplete="family-name"
+               inputmode="text"/>
+
+        @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+          <div class="error">{{ 'events.pages.registrations.validation.lastNameRequired' | translate}}</div>
+        }
+      </div>
+
+      <div class="text-input-wrapper" [class.invalid]="form.controls.personalCode.touched && form.controls.personalCode.invalid">
+        <label for="personalCode">{{ 'events.pages.registrations.personalCode' | translate}}</label>
+        <input id="personalCode"
+               type="text"
+               formControlName="personalCode"
+               autocomplete="off"
+               inputmode="numeric"/>
+
+        @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+          <div class="error">{{ 'events.pages.registrations.validation.personalCodeRequired' | translate}}</div>
+        }
+      </div>
+
+      <button class="btn-primary" type="submit" [disabled]="loading || form.invalid">
+        @if (loading) {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        <span>{{ 'events.pages.registrations.button.register' | translate}}</span>
+      </button>
+    </form>
+  </div>
+</section>
