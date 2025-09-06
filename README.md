@@ -1,59 +1,89 @@
-# NgProovitooFrontend
+# Events Management Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+A demo frontend application for managing events, built with **Angular 20.2.0** and **Node.js v24.7.0**.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🔗 Backend Dependency
 
-```bash
-ng serve
-```
+This frontend requires the backend service to be running.  
+You can find the backend source code here:  
+👉 [ng-proovitoo-backend](https://github.com/martin-luik/ng-proovitoo-backend)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## 🚀 Prerequisites
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Node.js** v24.7.0 or higher
+- **npm** v10+ (bundled with Node.js)
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 📦 Installation
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Install dependencies:
 
 ```bash
-ng build
+npm install
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+---
 
-## Running unit tests
+## 🛠️ Development
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+Start the local development server (default: [http://localhost:4200](http://localhost:4200)):
 
 ```bash
-ng test
+npm run start
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## 🧪 Testing
+
+### Unit Tests (Jasmine/Karma)
+
+Run all unit tests:
 
 ```bash
-ng e2e
+npm run test
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+> Runs component and service unit tests.
 
-## Additional Resources
+---
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### End-to-End Tests (Playwright)
+
+- Run all e2e tests:
+
+    ```bash
+    npm run e2e
+    ```
+
+- Interactive UI mode (test explorer):
+
+    ```bash
+    npm run e2e:ui
+    ```
+
+- Run tests with a visible browser:
+
+    ```bash
+    npm run e2e:headed
+    ```
+
+- Generate new test code via recorder:
+
+    ```bash
+    npm run e2e:generate
+    ```
+
+---
+
+## 📝 Notes
+
+- Uses **ngx-translate** for i18n (currently only English translations).
+- Authentication is **JWT-based**; a valid token must be present in `sessionStorage`.
+- Some tests require the backend API running at [http://localhost:8080](http://localhost:8080).
+
