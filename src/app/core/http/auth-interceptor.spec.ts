@@ -1,8 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
-import { authInterceptor } from './auth-interceptor';
+import {TestBed} from '@angular/core/testing';
+import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/http';
+import {HttpTestingController, provideHttpClientTesting} from '@angular/common/http/testing';
+import {authInterceptor} from './auth-interceptor';
 
 describe('authInterceptor', () => {
   let http: HttpClient;

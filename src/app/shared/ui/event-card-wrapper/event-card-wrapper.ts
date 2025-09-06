@@ -8,5 +8,5 @@ import {CommonModule} from '@angular/common';
   styleUrl: './event-card-wrapper.scss'
 })
 export class EventCardWrapper {
-  @Input() colorCode: number = 0;
+  @Input() colorCode = 0;
 }

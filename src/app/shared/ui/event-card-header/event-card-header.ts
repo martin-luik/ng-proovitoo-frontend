@@ -9,6 +9,6 @@ import {TranslateModule} from '@ngx-translate/core';
   styleUrl: './event-card-header.scss'
 })
 export class EventCardHeader {
-  @Input() title: string = '';
-  @Input() availableSeats: number = 0;
+  @Input() title = '';
+  @Input() availableSeats = 0;
 }

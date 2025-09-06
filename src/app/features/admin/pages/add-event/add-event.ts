@@ -42,7 +42,7 @@ export class AddEvent {
 
     const formRavValue = this.form.getRawValue();
     const startsAtIso = new Date(formRavValue.startsAt as unknown as string).toISOString();
-    this.api.createEvent({...formRavValue, startsAt: startsAtIso} as any).subscribe({
+    this.api.createEvent({...formRavValue, startsAt: startsAtIso} as PostEventRequest).subscribe({
       next: () => {
         const msg = this.translate.instant('admin.pages.addEvent.notify.success');
         this.notify.success(msg);

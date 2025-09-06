@@ -9,6 +9,6 @@ import {TranslateModule} from '@ngx-translate/core';
   styleUrl: './event-card-stats.scss'
 })
 export class EventCardStats {
-  @Input() registrationsCount: number = 0;
-  @Input() availableSeats: number = 0;
+  @Input() registrationsCount = 0;
+  @Input() availableSeats = 0;
 }
