@@ -1,12 +1,12 @@
 interface PostEventRequest {
-  title: string;
-  startAt: string;
+  name: string;
+  startsAt: string;
   capacity: number;
 }
 
 interface PostEventResponse {
-  title: string;
-  startAt: string;
+  name: string;
+  startsAt: string;
   capacity: number;
 }
 

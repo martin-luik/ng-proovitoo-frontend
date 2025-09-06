@@ -29,7 +29,7 @@ describe('EventsApi', () => {
 
   it('getEvents() should GET /v1/events', () => {
     const mock: EventSummary[] = [
-      { id: 1, title: 'A', startAt: new Date('2025-01-01T12:00:00') as any, capacity: 10, registrationsCount: 0, availableSeats: 10 }
+      { id: 1, title: 'Any event', startsAt: new Date('2025-01-01T12:00:00') as any, capacity: 10, registrationsCount: 0, availableSeats: 10 }
     ];
 
     let result: EventSummary[] | undefined;

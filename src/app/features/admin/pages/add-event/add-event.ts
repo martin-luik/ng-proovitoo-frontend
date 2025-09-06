@@ -26,8 +26,8 @@ export class AddEvent {
   errorMsg = '';
 
   form = this.fb.nonNullable.group({
-    title: ['', Validators.required],
-    startAt: ['', Validators.required],
+    name: ['', Validators.required],
+    startsAt: ['', Validators.required],
     capacity: [1, [Validators.required, Validators.min(1)]],
   });
 
@@ -41,7 +41,7 @@ export class AddEvent {
     this.loading = true;
 
     const formRavValue = this.form.getRawValue();
-    const startsAtIso = new Date(formRavValue.startAt as unknown as string).toISOString();
+    const startsAtIso = new Date(formRavValue.startsAt as unknown as string).toISOString();
     this.api.createEvent({...formRavValue, startsAt: startsAtIso} as any).subscribe({
       next: () => {
         const msg = this.translate.instant('admin.pages.addEvent.notify.success');

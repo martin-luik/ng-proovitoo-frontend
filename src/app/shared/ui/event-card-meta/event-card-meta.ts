@@ -13,6 +13,6 @@ import {TranslateModule} from '@ngx-translate/core';
   styleUrl: './event-card-meta.scss'
 })
 export class EventCardMeta {
-  @Input() startAt: string = '';
+  @Input() startsAt: string = '';
   @Input() capacity: number = 0;
 }

@@ -13,8 +13,8 @@ test('As an admin, create a new event', async ({ page }) => {
   await page.getByRole('button', { name: 'Add Event' }).click();
   await page.getByRole('textbox', { name: 'Event name' }).click();
   await page.getByRole('textbox', { name: 'Event name' }).fill(eventName);
-  await page.getByRole('textbox', { name: 'Start At' }).click();
-  await page.getByRole('textbox', { name: 'Start At' }).fill('2025-01-01T12:00');
+  await page.getByRole('textbox', { name: 'Starts At' }).click();
+  await page.getByRole('textbox', { name: 'Starts At' }).fill('2025-01-01T12:00');
   await page.getByRole('spinbutton', { name: 'Capacity' }).fill('10');
   page.once('dialog', dialog => {
     console.log(`Dialog message: ${dialog.message()}`);

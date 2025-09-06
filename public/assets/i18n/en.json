@@ -33,15 +33,15 @@
       "addEvent": {
         "title": "Add Event",
         "eventName": "Event name",
-        "startAt": "Start At",
+        "startsAt": "Starts At",
         "capacity": "Capacity",
         "button": {
           "back": "Back",
           "createEvent": "Create event"
         },
         "validation": {
-          "titleRequired": "Event name is required",
-          "startAtRequired": "Start at is required",
+          "nameRequired": "Event name is required",
+          "startsAtRequired": "Starts at is required",
           "capacityRequired": "Capacity is required"
         },
         "notify": {

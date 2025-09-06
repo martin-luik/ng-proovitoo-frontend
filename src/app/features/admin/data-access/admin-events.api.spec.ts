@@ -23,7 +23,7 @@ describe('AdminEventsApi', () => {
   afterEach(() => httpMock.verify());
 
   it('createEvent() should POST /v1/events', () => {
-    const body = { title: 'Test', startAt: '2025-01-01T12:00:00', capacity: 10 };
+    const body = { name: 'Test', startsAt: '2025-01-01T12:00:00', capacity: 10 };
     api.createEvent(body).subscribe();
 
     const req = httpMock.expectOne(`${environment.apiUrl}/v1/events`);

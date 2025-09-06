@@ -4,29 +4,29 @@
       <button class="simple-link" (click)="navigateToDashboard()">{{ 'admin.pages.addEvent.button.back' | translate}}</button>
       <h1>{{ 'admin.pages.addEvent.title' | translate }}</h1>
       <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="text-input-wrapper" [class.invalid]="form.controls.title.touched && form.controls.title.invalid">
-          <label for="title">{{ 'admin.pages.addEvent.eventName' | translate}}</label>
-          <input id="title"
+        <div class="text-input-wrapper" [class.invalid]="form.controls.name.touched && form.controls.name.invalid">
+          <label for="name">{{ 'admin.pages.addEvent.eventName' | translate}}</label>
+          <input id="name"
                  type="text"
-                 formControlName="title"
+                 formControlName="name"
                  inputmode="text"/>
 
-          @if (form.controls.title.touched && form.controls.title.hasError('required')) {
-            <div class="error">{{ 'admin.pages.addEvent.validation.titleRequired' | translate}}</div>
+          @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+            <div class="error">{{ 'admin.pages.addEvent.validation.nameRequired' | translate}}</div>
           }
         </div>
 
         <div class="text-input-wrapper"
-             [class.invalid]="form.controls.startAt.touched && form.controls.startAt.invalid">
-          <label for="startAt">{{ 'admin.pages.addEvent.startAt' | translate}}</label>
-          <input id="startAt"
+             [class.invalid]="form.controls.startsAt.touched && form.controls.startsAt.invalid">
+          <label for="startsAt">{{ 'admin.pages.addEvent.startsAt' | translate}}</label>
+          <input id="startsAt"
                  type="datetime-local"
-                 formControlName="startAt"
+                 formControlName="startsAt"
                  autocomplete="off"
           />
 
-          @if (form.controls.startAt.touched && form.controls.startAt.hasError('required')) {
-            <div class="error">{{ 'admin.pages.addEvent.validation.startAtRequired' | translate}}</div>
+          @if (form.controls.startsAt.touched && form.controls.startsAt.hasError('required')) {
+            <div class="error">{{ 'admin.pages.addEvent.validation.startsAtRequired' | translate}}</div>
           }
         </div>
 
