@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
 import {adminGuard} from './core/guards/admin-guard';
-import {EventsList} from './features/events/pages/events/events-list';
+import {EventsList} from './features/events/pages/event-list/events-list';
 import {redirectIfLoggedInGuard} from './core/guards/redirect-if-logged-in.guard';
 import {Login} from './features/admin/pages/login/login';
 import {Dashboard} from './features/admin/pages/dashboard/dashboard';

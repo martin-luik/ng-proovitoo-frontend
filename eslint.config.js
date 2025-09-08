@@ -11,8 +11,7 @@ module.exports = tseslint.config(
       'build/**',
       'coverage/**',
       '.angular/**',
-      'e2e/playwright-report/**',
-      'e2e/test-results/**',
+      'e2e/**',
     ]
   },
   {
@@ -41,6 +40,7 @@ module.exports = tseslint.config(
           style: "kebab-case",
         },
       ],
+      "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     },
   },
   {
