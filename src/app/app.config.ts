@@ -10,7 +10,7 @@ import {routes} from './app.routes';
 import {HttpInterceptorFn, provideHttpClient, withFetch, withInterceptors} from '@angular/common/http';
 import {TranslateModule} from '@ngx-translate/core';
 import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
-import {authInterceptor} from './core/interceptors/http/auth-interceptor';
+import {authInterceptor} from '@core/interceptors/http/auth-interceptor';
 
 export const credentialsInterceptor: HttpInterceptorFn = (req, next) => {
   const isApi = req.url.startsWith('/auth') || req.url.startsWith('/v1');

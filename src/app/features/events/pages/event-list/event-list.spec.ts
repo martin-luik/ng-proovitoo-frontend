@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { EventsList } from './events-list';
 import { EventsApi } from '../../data-access/events.api';
 import { TranslateModule } from '@ngx-translate/core';
-import { EventSummary } from '../../../../shared/models/event.model';
+import { EventSummary } from '@shared/models/event.model';
 
 describe('EventsList', () => {
   let comp: EventsList;

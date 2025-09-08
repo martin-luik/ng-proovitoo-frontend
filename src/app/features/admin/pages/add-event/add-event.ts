@@ -1,10 +1,10 @@
 import {Component, inject} from '@angular/core';
 import {FormBuilder, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {AdminEventsApi} from '../../data-access/admin-events.api';
-import {AuthService} from '../../../../core/services/auth.service';
+import {AuthService} from '@core/services/auth.service';
 import {Router} from '@angular/router';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {NotificationService} from '../../../../core/services/notification.service';
+import {NotificationService} from '@core/services/notification.service';
 
 @Component({
   selector: 'app-add-event',

@@ -4,7 +4,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 
 import {Router} from '@angular/router';
 import {of, throwError} from 'rxjs';
-import {AuthService} from '../../../../core/services/auth.service';
+import {AuthService} from '@core/services/auth.service';
 import {TranslateModule} from '@ngx-translate/core';
 
 describe('AdminLogin', () => {

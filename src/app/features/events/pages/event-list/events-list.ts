@@ -3,12 +3,12 @@ import {ReactiveFormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import {EventsApi} from '../../data-access/events.api';
 import {Router} from '@angular/router';
-import {EventCardGrid} from '../../../../shared/ui/event-card-grid/event-card-grid';
-import {EventSummary} from '../../../../shared/models/event.model';
-import {EventCardWrapper} from '../../../../shared/ui/event-card-wrapper/event-card-wrapper';
-import {EventCardMeta} from '../../../../shared/ui/event-card-meta/event-card-meta';
-import {EventCardStats} from '../../../../shared/ui/event-card-stats/event-card-stats';
-import {EventCardHeader} from '../../../../shared/ui/event-card-header/event-card-header';
+import {EventCardGrid} from '@shared/ui/event-card-grid/event-card-grid';
+import {EventSummary} from '@shared/models/event.model';
+import {EventCardWrapper} from '@shared/ui/event-card-wrapper/event-card-wrapper';
+import {EventCardMeta} from '@shared/ui/event-card-meta/event-card-meta';
+import {EventCardStats} from '@shared/ui/event-card-stats/event-card-stats';
+import {EventCardHeader} from '@shared/ui/event-card-header/event-card-header';
 import {TranslateModule} from '@ngx-translate/core';
 import {interval, Subject, switchMap, takeUntil} from 'rxjs';
 

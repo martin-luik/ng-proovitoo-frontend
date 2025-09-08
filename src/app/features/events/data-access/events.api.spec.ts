@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { EventsApi } from './events.api';
 import { environment } from '../../../../environments/environment';
-import { EventSummary } from '../../../shared/models/event.model';
+import { EventSummary } from '@shared/models/event.model';
 import { Registration } from './events.model';
 
 describe('EventsApi', () => {

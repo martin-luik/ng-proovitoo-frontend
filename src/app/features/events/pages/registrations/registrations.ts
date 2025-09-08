@@ -4,7 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {CommonModule} from '@angular/common';
 import {EventsApi} from '../../data-access/events.api';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
-import {NotificationService} from '../../../../core/services/notification.service';
+import {NotificationService} from '@core/services/notification.service';
 
 @Component({
   selector: 'app-registrations',

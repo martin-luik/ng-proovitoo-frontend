@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import {EventsApi} from '../../data-access/events.api';
-import {NotificationService} from '../../../../core/services/notification.service';
+import {NotificationService} from '@core/services/notification.service';
 
 type EventsApiMock = jasmine.SpyObj<{ register: (id: number, body: any) => any }>;
 type NotificationMock = jasmine.SpyObj<{ success: (m: string) => void; error: (m: string) => void }>;
