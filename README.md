@@ -73,6 +73,12 @@ npm run test
 
 ### End-to-End Tests (Playwright)
 
+Playwright requires browser binaries to be installed before running tests.  
+Run this once after cloning the repo:
+```bash
+npm run e2e:setup
+```
+
 - Run all e2e tests:
 
   ```bash

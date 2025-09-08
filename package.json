@@ -11,6 +11,7 @@
     "e2e:ui": "playwright test --ui",
     "e2e:headed": "playwright test --headed",
     "e2e:generate": "playwright codegen localhost:4200",
+    "e2e:setup": "playwright install --with-deps",
     "lint": "eslint . --ext .ts,.html",
     "lint:fix": "eslint . --ext .ts,.html --fix"
   },
