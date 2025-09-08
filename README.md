@@ -105,17 +105,17 @@ npm run e2e:setup
 
 ---
 
-### Build Backend Image Manually
+### Build Frontend Image Manually
 
 **If you want to build the backend image separately (without `docker compose`), run:**
 
 ```bash
-docker build -t events/backend:1.0.0 .
+docker build -t events/frontend:1.0.0 .
 ```
 
 **You can then run it with:**
 ```bash
-docker run --rm -p 8080:8080 events/backend:1.0.0
+docker run --rm -p 8080:8080 events/frontend:1.0.0
 ```
 
 ---
