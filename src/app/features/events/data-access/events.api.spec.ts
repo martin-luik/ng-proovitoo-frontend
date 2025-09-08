@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { EventsApi } from './events.api';
 import { environment } from '@env/environment';
-import {EventSummary, Registration} from './events.model';
+import {EventSummary, PostRegistrationRequest, PostRegistrationResponse} from './events.model';
 
 describe('EventsApi', () => {
   let api: EventsApi;
@@ -45,27 +45,30 @@ describe('EventsApi', () => {
   });
 
   it('should POST /v1/events/:id/registrations when calling register()', () => {
-    const body: Registration = { firstName: 'Firstname', lastName: 'LastName', personalCode: '11111111111' };
     const eventId = 42;
+    const registeredId = 1
 
-    let res: Registration | undefined;
-    api.register(eventId, body).subscribe(r => (res = r));
+    const requestBody: PostRegistrationRequest = { firstName: 'Firstname', lastName: 'LastName', personalCode: '11111111111' };
+    const responseBody: PostRegistrationResponse = { id: registeredId, eventId: eventId };
+
+    let res: PostRegistrationResponse | undefined;
+    api.register(eventId, requestBody).subscribe(r => (res = r));
 
     const req = httpMock.expectOne(`${environment.apiUrl}/v1/events/${eventId}/registrations`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(body);
+    expect(req.request.body).toEqual(requestBody);
 
-    req.flush(body);
+    req.flush(responseBody);
 
-    expect(res).toEqual(body);
+    expect(res).toEqual(responseBody);
   });
 
   it('should propagate HTTP errors', () => {
     const eventId = 1;
-    const body: Registration = { firstName: 'Firstname', lastName: 'LastName', personalCode: '11111111111' };
+    const requestBody: PostRegistrationRequest = { firstName: 'Firstname', lastName: 'LastName', personalCode: '11111111111' };
 
     let errorStatus: number | undefined;
-    api.register(eventId, body).subscribe({
+    api.register(eventId, requestBody).subscribe({
       next: () => fail('expected error'),
       error: (e) => (errorStatus = e.status),
     });

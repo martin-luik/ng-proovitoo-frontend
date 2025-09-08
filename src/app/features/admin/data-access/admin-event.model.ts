@@ -5,6 +5,7 @@ interface PostEventRequest {
 }
 
 interface PostEventResponse {
+  id: number;
   name: string;
   startsAt: string;
   capacity: number;

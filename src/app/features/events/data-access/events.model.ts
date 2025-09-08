@@ -7,8 +7,13 @@ export interface EventSummary {
   availableSeats: number;
 }
 
-export interface Registration {
+export interface PostRegistrationRequest {
   firstName: string;
   lastName: string;
   personalCode: string;
+}
+
+export interface PostRegistrationResponse {
+  id: number;
+  eventId: number;
 }
