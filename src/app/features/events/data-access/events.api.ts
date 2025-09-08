@@ -1,7 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '@env/environment';
-import {EventSummary, PostRegistrationRequest, PostRegistrationResponse} from './events.model';
+import {EventSummaryResponse, PostRegistrationRequest, PostRegistrationResponse} from './events.model';
 
 @Injectable({providedIn: 'root'})
 export class EventsApi {
@@ -9,7 +9,7 @@ export class EventsApi {
   private readonly baseUrl = environment.apiUrl;
 
   getEvents() {
-    return this.http.get<EventSummary[]>(`${this.baseUrl}/v1/events`);
+    return this.http.get<EventSummaryResponse[]>(`${this.baseUrl}/v1/events`);
   }
 
   register(eventId: number, body: PostRegistrationRequest) {

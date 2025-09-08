@@ -7,7 +7,7 @@ import {EventCardHeader} from '@shared/ui/event-card-header/event-card-header';
 import {EventCardMeta} from '@shared/ui/event-card-meta/event-card-meta';
 import {EventCardStats} from '@shared/ui/event-card-stats/event-card-stats';
 import {TranslateModule} from '@ngx-translate/core';
-import {EventSummary} from '@features/events/data-access/events.model';
+import {EventSummaryResponse} from '@features/events/data-access/events.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,7 +29,7 @@ export class Dashboard implements OnInit {
   private readonly router = inject(Router);
 
 
-  events = signal<EventSummary[]>([]);
+  events = signal<EventSummaryResponse[]>([]);
 
   ngOnInit() { this.api.getEvents().subscribe(e => this.events.set(e)); }
 

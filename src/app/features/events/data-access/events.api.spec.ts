@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { EventsApi } from './events.api';
 import { environment } from '@env/environment';
-import {EventSummary, PostRegistrationRequest, PostRegistrationResponse} from './events.model';
+import {EventSummaryResponse, PostRegistrationRequest, PostRegistrationResponse} from './events.model';
 
 describe('EventsApi', () => {
   let api: EventsApi;
@@ -27,11 +27,11 @@ describe('EventsApi', () => {
   });
 
   it('should GET /v1/events when calling getEvents()', () => {
-    const mock: EventSummary[] = [
+    const mock: EventSummaryResponse[] = [
       { id: 1, name: 'Any event', startsAt: '2025-01-01T12:00:00', capacity: 10, registrationsCount: 0, availableSeats: 10 }
     ];
 
-    let result: EventSummary[] | undefined;
+    let result: EventSummaryResponse[] | undefined;
     api.getEvents().subscribe(r => (result = r));
 
     const req = httpMock.expectOne(`${environment.apiUrl}/v1/events`);

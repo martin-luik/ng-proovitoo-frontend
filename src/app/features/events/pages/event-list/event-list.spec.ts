@@ -4,14 +4,14 @@ import { Router } from '@angular/router';
 import { EventsList } from './events-list';
 import { EventsApi } from '../../data-access/events.api';
 import { TranslateModule } from '@ngx-translate/core';
-import {EventSummary} from '@features/events/data-access/events.model';
+import {EventSummaryResponse} from '@features/events/data-access/events.model';
 
 describe('EventsList', () => {
   let comp: EventsList;
   let router: jasmine.SpyObj<Router>;
   let api: jasmine.SpyObj<EventsApi>;
 
-  const firstBatch: EventSummary[] = [
+  const firstBatch: EventSummaryResponse[] = [
     {
       id: 1,
       name: 'Weekend',
@@ -23,7 +23,7 @@ describe('EventsList', () => {
     } as any,
   ];
 
-  const secondBatch: EventSummary[] = [
+  const secondBatch: EventSummaryResponse[] = [
     {
       id: 2,
       name: 'Hackday',

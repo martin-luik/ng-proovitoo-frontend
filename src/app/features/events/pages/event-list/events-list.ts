@@ -10,7 +10,7 @@ import {EventCardStats} from '@shared/ui/event-card-stats/event-card-stats';
 import {EventCardHeader} from '@shared/ui/event-card-header/event-card-header';
 import {TranslateModule} from '@ngx-translate/core';
 import {interval, Subject, switchMap, takeUntil} from 'rxjs';
-import {EventSummary} from '@features/events/data-access/events.model';
+import {EventSummaryResponse} from '@features/events/data-access/events.model';
 
 @Component({
   selector: 'app-events-list',
@@ -34,7 +34,7 @@ export class EventsList implements OnInit, OnDestroy {
 
   private readonly destroy$ = new Subject<void>();
 
-  events = signal<EventSummary[]>([]);
+  events = signal<EventSummaryResponse[]>([]);
 
   ngOnInit() {
     this.api.getEvents().subscribe(e => this.events.set(e));

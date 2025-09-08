@@ -1,4 +1,4 @@
-export interface EventSummary {
+export interface EventSummaryResponse {
   id: number;
   name: string;
   startsAt: string;
