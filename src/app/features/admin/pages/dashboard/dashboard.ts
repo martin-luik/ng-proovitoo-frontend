@@ -1,6 +1,5 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
 import {EventsApi} from '../../../events/data-access/events.api';
-import {FormBuilder} from '@angular/forms';
 import {Router} from '@angular/router';
 import {EventCardGrid} from '@shared/ui/event-card-grid/event-card-grid';
 import {EventCardWrapper} from '@shared/ui/event-card-wrapper/event-card-wrapper';
@@ -27,7 +26,6 @@ import {EventSummary} from '@features/events/data-access/events.model';
 export class Dashboard implements OnInit {
 
   private readonly api = inject(EventsApi);
-  private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
 

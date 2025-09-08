@@ -1,6 +1,6 @@
 import {inject, Injectable, signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {catchError, firstValueFrom, of, switchMap, tap} from 'rxjs';
+import {catchError, of, switchMap, tap} from 'rxjs';
 import {environment} from '@env/environment';
 
 export interface Me { email: string; roles: string[]; }
@@ -22,10 +22,6 @@ export class AuthService {
       }),
       catchError(() => of(null))
     );
-  }
-
-  async loadMeOnce(): Promise<void> {
-    await firstValueFrom(this.loadMe$());
   }
 
   login(email: string, password: string) {
