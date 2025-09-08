@@ -28,6 +28,9 @@
       "dashboard": {
         "button": {
           "addEvent": "Add Event"
+        },
+        "eventList": {
+          "noEvents": "There are no events at the moment."
         }
       },
       "addEvent": {
