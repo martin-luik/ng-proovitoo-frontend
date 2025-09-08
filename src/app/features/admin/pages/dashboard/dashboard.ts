@@ -1,7 +1,6 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
 import {EventsApi} from '../../../events/data-access/events.api';
 import {FormBuilder} from '@angular/forms';
-import {EventSummary} from '@shared/models/event.model';
 import {Router} from '@angular/router';
 import {EventCardGrid} from '@shared/ui/event-card-grid/event-card-grid';
 import {EventCardWrapper} from '@shared/ui/event-card-wrapper/event-card-wrapper';
@@ -9,6 +8,7 @@ import {EventCardHeader} from '@shared/ui/event-card-header/event-card-header';
 import {EventCardMeta} from '@shared/ui/event-card-meta/event-card-meta';
 import {EventCardStats} from '@shared/ui/event-card-stats/event-card-stats';
 import {TranslateModule} from '@ngx-translate/core';
+import {EventSummary} from '@features/events/data-access/events.model';
 
 @Component({
   selector: 'app-dashboard',

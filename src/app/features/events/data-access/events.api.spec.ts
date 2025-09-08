@@ -2,9 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { EventsApi } from './events.api';
-import { environment } from '../../../../environments/environment';
-import { EventSummary } from '@shared/models/event.model';
-import { Registration } from './events.model';
+import { environment } from '@env/environment';
+import {EventSummary, Registration} from './events.model';
 
 describe('EventsApi', () => {
   let api: EventsApi;

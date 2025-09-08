@@ -1,8 +1,7 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {environment} from '@env/environment';
-import {EventSummary} from '@shared/models/event.model';
-import {Registration} from './events.model';
+import {EventSummary, Registration} from './events.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventsApi {
