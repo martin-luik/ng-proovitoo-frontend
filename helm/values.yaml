@@ -1,0 +1,16 @@
+image:
+  repository: host.docker.internal:5001/ng-proovitoo-frontend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+ingress:
+  ingressClassName: nginx
+  apiPrefix: /
+
+service:
+  port: 80
+  targetPort: 80
+
+containerPort: 80
+replicaCount: 1
+
