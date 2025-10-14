@@ -103,6 +103,68 @@ pipeline {
         }
       }
     }
+
+    stage('Deploy (Helm)') {
+      agent {
+        docker {
+          image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0'
+        }
+      }
+      environment {
+        HELM_REPO_NAME = "company-helm"
+        HELM_REPO_URL  = "http://host.docker.internal:8081/repository/helm-hosted/"
+        CHART_NAME     = "ng-frontend"
+        CHART_VERSION  = "0.1.${env.BUILD_NUMBER}"
+    
+        REGISTRY_PULL  = "host.docker.internal:5001"
+    
+        RELEASE_NAME   = "ng-events-frontend"
+        NAMESPACE      = "ng-events"
+      }
+      steps {
+        withCredentials([
+          file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG'),
+          usernamePassword(credentialsId: 'nexus-helm',   usernameVariable: 'HUSER', passwordVariable: 'HPASS'),
+          usernamePassword(credentialsId: 'nexus-docker', usernameVariable: 'DUSER', passwordVariable: 'DPASS')
+        ]) {
+          sh '''
+            set -euo pipefail
+            set -x
+    
+            cp "$KCFG" ./kubeconfig
+            chmod 600 ./kubeconfig
+            if grep -q "https://127.0.0.1:6443" ./kubeconfig; then
+              sed -i 's#https://127.0.0.1:6443#https://kubernetes.docker.internal:6443#g' ./kubeconfig
+            fi
+            export KUBECONFIG="$PWD/kubeconfig"
+    
+            kubectl config view --minify
+            kubectl cluster-info || true
+    
+            kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f - || true
+            kubectl -n "${NAMESPACE}" create secret docker-registry nexus-regcred \
+              --docker-server="${REGISTRY_PULL}" \
+              --docker-username="${DUSER}" \
+              --docker-password="${DPASS}" \
+              --dry-run=client -o yaml | kubectl apply -f -
+            kubectl -n "${NAMESPACE}" patch serviceaccount default \
+              -p '{"imagePullSecrets":[{"name":"nexus-regcred"}]}' || true
+    
+            helm repo add "${HELM_REPO_NAME}" "${HELM_REPO_URL}" --username "${HUSER}" --password "${HPASS}"
+            helm repo update
+    
+            helm upgrade --install "${RELEASE_NAME}" "${HELM_REPO_NAME}/${CHART_NAME}" \
+              --version "${CHART_VERSION}" \
+              --namespace "${NAMESPACE}" --create-namespace \
+              --set image.repository="${REGISTRY_PULL}/${IMAGE}" \
+              --set-string image.tag="${VERSION}" \
+              --wait --atomic --timeout 10m --history-max 10
+    
+            kubectl -n "${NAMESPACE}" get deploy,po,svc
+          '''
+        }
+      }
+    }
   }
 
   post {
