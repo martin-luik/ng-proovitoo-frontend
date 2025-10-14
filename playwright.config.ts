@@ -1,6 +1,9 @@
 import 'dotenv/config';
 import { defineConfig, devices } from '@playwright/test';
 
+
+const useWebServer = process.env.PW_USE_WEBSERVER !== 'false';
+
 export default defineConfig({
   testDir: 'e2e',
   timeout: 30_000,
@@ -14,12 +17,14 @@ export default defineConfig({
     screenshot: 'only-on-failure'
   },
 
-  webServer: {
-    command: 'npm run start',
-    url: 'http://localhost:4200',
-    reuseExistingServer: true,
-    timeout: 120_000
-  },
+  ...(useWebServer ? {
+    webServer: {
+      command: 'npm run start',
+      url: 'http://localhost:4200',
+      reuseExistingServer: true,
+      timeout: 120_000
+    }
+  } : {}),
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
   ]

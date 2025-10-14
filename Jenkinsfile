@@ -2,40 +2,14 @@ pipeline {
   agent any
   options { timestamps() }
 
-  parameters {
-    booleanParam(name: 'RUN_E2E', defaultValue: true, description: 'Run ephemeral E2E after deploy')
-    choice(name: 'E2E_SUITE', choices: ['smoke','regression'], description: 'Playwright test suite')
-    string(name: 'BACKEND_TAG', defaultValue: 'latest', description: 'Backend image tag to use in E2E (e.g. commit SHA or latest)')
-    booleanParam(name: 'KEEP_ON_FAILURE', defaultValue: false, description: 'Keep E2E namespace on failure (for debugging)')
-  }
-
   environment {
-    REGISTRY        = "localhost:5001"
-    IMAGE           = "ng-proovitoo-frontend"
-    VERSION         = "${env.BUILD_NUMBER}"
-
-    HELM_REPO_NAME  = "company-helm"
-    HELM_REPO_URL   = "http://host.docker.internal:8081/repository/helm-hosted/"
-
-    CHART_NAME      = "ng-frontend"
-    CHART_DIR       = "helm"
-    CHART_VERSION   = "0.1.${env.BUILD_NUMBER}"
-    APP_VERSION     = "${env.VERSION}"
-    REGISTRY_PULL   = "host.docker.internal:5001"
-
-    RELEASE_NAME    = "ng-events-frontend"
-    NAMESPACE       = "ng-events"
-
-    E2E_NS          = "e2e-${env.BUILD_NUMBER}"
-    E2E_RELEASE     = "ng-events-e2e-${env.BUILD_NUMBER}"
-    E2E_HOST        = "e2e-${env.BUILD_NUMBER}.sslip.io"   // toimib ilma DNSita
-    HELM_BACKEND    = "ng-backend"                         // backend charti nimi Nexus Helm repos
+    REGISTRY = "localhost:5001"
+    IMAGE    = "ng-proovitoo-frontend"
+    VERSION  = "${env.BUILD_NUMBER}"
   }
 
   stages {
-
-    stage('Build & Unit Test (Node)') {
-      when { branch 'release' }
+    stage('Build & Test') {
       agent {
         docker {
           image 'node:24-bookworm'
@@ -51,23 +25,23 @@ pipeline {
       }
       steps {
         sh '''#!/usr/bin/env bash
-          set -Eeuo pipefail
+    set -Eeuo pipefail
 
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            chromium ca-certificates git \
-            libnss3 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0 fonts-liberation
-          rm -rf /var/lib/apt/lists/*
+    apt-get update
+    apt-get install -y --no-install-recommends \
+      chromium ca-certificates git \
+      libnss3 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0 fonts-liberation
+    rm -rf /var/lib/apt/lists/*
 
-          node -v
-          npm -v
+    node -v
+    npm -v
 
-          npm ci || npm install
-          npm run lint --if-present || true
+    npm ci || npm install
+    npm run lint --if-present || true
 
-          chown -R node:node .
-          su -s /bin/bash -c "npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox --no-progress" node || true
-        '''
+    chown -R node:node .
+    su -s /bin/bash -c "npm test -- --watch=false --browsers=ChromeHeadlessNoSandbox --no-progress" node
+    '''
       }
       post {
         always {
@@ -77,11 +51,9 @@ pipeline {
     }
 
     stage('Docker build & push (host)') {
-      when { branch 'release' }
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-docker', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
           sh '''
-            set -euxo pipefail
             docker build -t ${IMAGE}:${VERSION} .
             docker tag ${IMAGE}:${VERSION} ${REGISTRY}/${IMAGE}:${VERSION}
             docker tag ${IMAGE}:${VERSION} ${REGISTRY}/${IMAGE}:latest
@@ -97,8 +69,13 @@ pipeline {
     }
 
     stage('Helm package & upload (hosted)') {
-      when { branch 'release' }
       agent { docker { image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0' } }
+      environment {
+        CHART_DIR     = 'helm'
+        CHART_VERSION = "0.1.${env.BUILD_NUMBER}"
+        APP_VERSION   = "${env.VERSION}"
+        HELM_REPO_URL = "http://host.docker.internal:8081/repository/helm-hosted/"
+      }
       steps {
         withCredentials([usernamePassword(credentialsId: 'nexus-helm', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
           sh '''
@@ -106,7 +83,6 @@ pipeline {
             set -x
 
             rm -f ./*.tgz || true
-
 
             sed -i "s/^version:.*/version: ${CHART_VERSION}/" ${CHART_DIR}/Chart.yaml || true
             sed -i "s/^appVersion:.*/appVersion: \\"${APP_VERSION}\\"/" ${CHART_DIR}/Chart.yaml || true
@@ -128,9 +104,23 @@ pipeline {
       }
     }
 
-    stage('Deploy FE (Helm → ng-events)') {
-      when { branch 'release' }
-      agent { docker { image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0' } }
+    stage('Deploy (Helm)') {
+      agent {
+        docker {
+          image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0'
+        }
+      }
+      environment {
+        HELM_REPO_NAME = "company-helm"
+        HELM_REPO_URL  = "http://host.docker.internal:8081/repository/helm-hosted/"
+        CHART_NAME     = "ng-frontend"
+        CHART_VERSION  = "0.1.${env.BUILD_NUMBER}"
+    
+        REGISTRY_PULL  = "host.docker.internal:5001"
+    
+        RELEASE_NAME   = "ng-events-frontend"
+        NAMESPACE      = "ng-events"
+      }
       steps {
         withCredentials([
           file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG'),
@@ -140,15 +130,17 @@ pipeline {
           sh '''
             set -euo pipefail
             set -x
-
+    
             cp "$KCFG" ./kubeconfig
             chmod 600 ./kubeconfig
-            # Docker Desktopi kubeconfig "127.0.0.1" -> "kubernetes.docker.internal"
             if grep -q "https://127.0.0.1:6443" ./kubeconfig; then
               sed -i 's#https://127.0.0.1:6443#https://kubernetes.docker.internal:6443#g' ./kubeconfig
             fi
             export KUBECONFIG="$PWD/kubeconfig"
-
+    
+            kubectl config view --minify
+            kubectl cluster-info || true
+    
             kubectl create namespace "${NAMESPACE}" --dry-run=client -o yaml | kubectl apply -f - || true
             kubectl -n "${NAMESPACE}" create secret docker-registry nexus-regcred \
               --docker-server="${REGISTRY_PULL}" \
@@ -157,149 +149,77 @@ pipeline {
               --dry-run=client -o yaml | kubectl apply -f -
             kubectl -n "${NAMESPACE}" patch serviceaccount default \
               -p '{"imagePullSecrets":[{"name":"nexus-regcred"}]}' || true
-
+    
             helm repo add "${HELM_REPO_NAME}" "${HELM_REPO_URL}" --username "${HUSER}" --password "${HPASS}"
             helm repo update
-
+    
             helm upgrade --install "${RELEASE_NAME}" "${HELM_REPO_NAME}/${CHART_NAME}" \
               --version "${CHART_VERSION}" \
               --namespace "${NAMESPACE}" --create-namespace \
               --set image.repository="${REGISTRY_PULL}/${IMAGE}" \
               --set-string image.tag="${VERSION}" \
               --wait --atomic --timeout 10m --history-max 10
-
+    
             kubectl -n "${NAMESPACE}" get deploy,po,svc
           '''
         }
       }
     }
 
-    stage('E2E: Ephemeral env UP (PG + BE + FE)') {
-      when { allOf { branch 'release'; expression { params.RUN_E2E } } }
-      agent { docker { image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0' } }
+    stage('E2E (Playwright vs Ingress via port-forward)') {
+      agent { docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy'; args '--ipc=host' } }
+      environment {
+        CI = 'true'
+        NG_CLI_ANALYTICS = 'false'
+        PW_USE_WEBSERVER = 'false'
+        BASE_URL        = 'http://localhost:8088/'
+      }
       steps {
-        withCredentials([
-          file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG'),
-          usernamePassword(credentialsId: 'nexus-docker', usernameVariable: 'DU', passwordVariable: 'DP'),
-          usernamePassword(credentialsId: 'nexus-helm',   usernameVariable: 'HU', passwordVariable: 'HP')
-        ]) {
+        withCredentials([file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG')]) {
           sh '''#!/usr/bin/env bash
             set -euxo pipefail
-            export KUBECONFIG="$KCFG"
 
-            # Namespace
-            kubectl create ns "${E2E_NS}"
+            apt-get update
+            apt-get install -y --no-install-recommends curl ca-certificates
+            curl -fsSL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -fsSL https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+            chmod +x /usr/local/bin/kubectl
 
-            # Pull secret
-            kubectl -n "${E2E_NS}" create secret docker-registry nexus-regcred \
-              --docker-server="${REGISTRY_PULL}" \
-              --docker-username="${DU}" \
-              --docker-password="${DP}"
-            kubectl -n "${E2E_NS}" patch serviceaccount default \
-              -p '{"imagePullSecrets":[{"name":"nexus-regcred"}]}' || true
+            cp "$KCFG" ./kubeconfig
+            chmod 600 ./kubeconfig
+            export KUBECONFIG="$PWD/kubeconfig"
 
-            # Helm repo (Nexus)
-            helm repo add "${HELM_REPO_NAME}" "${HELM_REPO_URL}" --username "${HU}" --password "${HP}"
-            helm repo update
+            grep -q "https://127.0.0.1:6443" ./kubeconfig && \
+              sed -i 's#https://127.0.0.1:6443#https://kubernetes.docker.internal:6443#g' ./kubeconfig || true
 
-            # Postgres (Bitnami OCI) – pin versioon
-            CHART_VER="18.0.8"
-            helm upgrade --install pg oci://registry-1.docker.io/bitnamicharts/postgresql \
-              --version "${CHART_VER}" \
-              -n "${E2E_NS}" \
-              --set auth.username=app,auth.password=app,auth.database=app \
-              --wait --timeout 5m
+            kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8088:80 >/tmp/pf.log 2>&1 &
+            echo $! > /tmp/pf.pid
 
-            # Backend (kasutab sinu registry pilti ja viitab eespool tõstetud Postgres’ele)
-            helm upgrade --install "${E2E_RELEASE}-be" "${HELM_REPO_NAME}/${HELM_BACKEND}" \
-              -n "${E2E_NS}" \
-              --set image.repository="${REGISTRY_PULL}/ng-proovitoo-backend" \
-              --set-string image.tag="${BACKEND_TAG}" \
-              --set ingress.enabled=true \
-              --set ingress.host="${E2E_HOST}" \
-              --set-string extraEnv.SPRING_DATASOURCE_URL="jdbc:postgresql://pg-postgresql.${E2E_NS}.svc.cluster.local:5432/app" \
-              --set extraEnv.SPRING_DATASOURCE_USERNAME=app \
-              --set extraEnv.SPRING_DATASOURCE_PASSWORD=app \
-              --wait --atomic --timeout 10m
-
-            # Frontend – kasutab just ehitatud pilti
-            helm upgrade --install "${E2E_RELEASE}-fe" "${HELM_REPO_NAME}/${CHART_NAME}" \
-              -n "${E2E_NS}" \
-              --set image.repository="${REGISTRY_PULL}/${IMAGE}" \
-              --set-string image.tag="${VERSION}" \
-              --set ingress.enabled=true \
-              --set ingress.host="${E2E_HOST}" \
-              --wait --atomic --timeout 10m
-
-            # Oota kuni FE vastab
             for i in $(seq 1 60); do
-              curl -fsS "http://${E2E_HOST}" && break
+              curl -fsS "http://localhost:8088/" && break
               sleep 2
             done
-          '''
-        }
-      }
-    }
 
-    stage('E2E: Run Playwright') {
-      when { allOf { branch 'release'; expression { params.RUN_E2E } } }
-      agent { docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy'; args '--ipc=host' } }
-      environment { BASE_URL = "http://${E2E_HOST}" }
-      steps {
-        dir('frontend') { // muuda kui FE kood on mujal
-          sh '''#!/usr/bin/env bash
-            set -euxo pipefail
+            node -v; npm -v
             npm ci || npm install
             npx playwright install --with-deps
-
-            for i in $(seq 1 60); do curl -fsS "${BASE_URL}" && break; sleep 2; done
-
-            if [ "${E2E_SUITE}" = "smoke" ]; then
-              npx playwright test -g "@smoke" --retries=1
-            else
-              npx playwright test --retries=1
-            fi
+            npx playwright test --reporter=junit,line --retries=1
           '''
         }
       }
       post {
         always {
-          junit allowEmptyResults: true, testResults: 'frontend/playwright-results.xml'
-          archiveArtifacts artifacts: 'frontend/playwright-report/**,frontend/playwright-artifacts/**', allowEmptyArchive: true, fingerprint: true
-        }
-      }
-    }
-
-    stage('E2E: Teardown') {
-      when { allOf { branch 'release'; expression { params.RUN_E2E && !params.KEEP_ON_FAILURE } } }
-      agent { docker { image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0' } }
-      steps {
-        withCredentials([file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG')]) {
-          sh '''#!/usr/bin/env bash
-            set -euxo pipefail
-            export KUBECONFIG="$KCFG"
-            helm uninstall "${E2E_RELEASE}-fe" -n "${E2E_NS}" || true
-            helm uninstall "${E2E_RELEASE}-be" -n "${E2E_NS}" || true
-            helm uninstall pg -n "${E2E_NS}" || true
-            kubectl delete ns "${E2E_NS}" --ignore-not-found=true
+          sh '''
+            if [ -f /tmp/pf.pid ]; then kill $(cat /tmp/pf.pid) || true; fi
           '''
+          junit allowEmptyResults: true, testResults: '**/test-results/*.xml,**/playwright-report/*.xml'
+          archiveArtifacts artifacts: 'playwright-report/**,playwright-artifacts/**', allowEmptyArchive: true
         }
       }
     }
+    
   }
 
   post {
-    failure {
-      script {
-        if (params.RUN_E2E && params.KEEP_ON_FAILURE) {
-          echo "E2E keskkond jäeti alles: namespace=${env.E2E_NS}, host=http://${env.E2E_HOST}"
-        }
-      }
-    }
-    always {
-      // väikene cleanup hosti poolel
-      sh 'docker image prune -f || true'
-      cleanWs()
-    }
+    always { cleanWs() }
   }
 }
