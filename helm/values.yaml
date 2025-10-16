@@ -6,6 +6,7 @@ image:
 ingress:
   ingressClassName: nginx
   apiPrefix: /
+  host: ""
 
 service:
   port: 80
