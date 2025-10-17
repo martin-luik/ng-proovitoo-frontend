@@ -121,7 +121,7 @@ pipeline {
         RELEASE_NAME   = "ng-events-frontend"
         NAMESPACE      = "ng-events"
 
-        HOST           = "ng-events-dev.127.0.0.1.nip.io"
+        HOST           = "web.127.0.0.1.nip.io"
       }
       steps {
         withCredentials([
