@@ -194,13 +194,13 @@ pipeline {
 
         LB_SCHEMA       = "liquibase"
         APP_SCHEMA      = "event_mgmt"
-        E2E_HOST        = "e2e-${env.BUILD_NUMBER}.127.0.0.1.nip.io"
+        E2E_HOST        = "ng-events-e2e.127.0.0.1.nip.io"
       }
       steps {
         withCredentials([
           file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG'),
-          usernamePassword(credentialsId: 'nexus-helm',   usernameVariable: 'USER', passwordVariable: 'PASS'),
-          usernamePassword(credentialsId: 'nexus-docker', usernameVariable: 'USER', passwordVariable: 'PASS')
+          usernamePassword(credentialsId: 'nexus-helm',   usernameVariable: 'HUSER', passwordVariable: 'HPASS'),
+          usernamePassword(credentialsId: 'nexus-docker', usernameVariable: 'DUSER', passwordVariable: 'DPASS')
         ]) {
           sh '''#!/usr/bin/env bash
             set -euxo pipefail
@@ -211,7 +211,6 @@ pipeline {
               sed -i 's#https://127.0.0.1:6443#https://kubernetes.docker.internal:6443#g' ./kubeconfig
             fi
             export KUBECONFIG="$PWD/kubeconfig"
-
 
             kubectl create ns "${E2E_NS}" --dry-run=client -o yaml | kubectl apply -f -
 
@@ -232,21 +231,29 @@ pipeline {
               --set primary.initdb.scriptsConfigMap=pg-init \
               --wait --timeout 5m
 
-            helm repo add "${HELM_REPO_NAME}" "${HELM_REPO_URL}" --username "${USER}" --password "${PASS}" || true
+            helm repo add "${HELM_REPO_NAME}" "${HELM_REPO_URL}" --username "${HUSER}" --password "${HPASS}" || true
             helm repo update
 
-            helm upgrade --install e2e-ng-backend "${HELM_REPO_NAME}/${CHART_BE}" \
+            kubectl -n "${E2E_NS}" create secret docker-registry nexus-regcred \
+              --docker-server="${REGISTRY_PULL}" \
+              --docker-username="${DUSER}" \
+              --docker-password="${DPASS}" \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+            helm upgrade --install ng-events-backend "${HELM_REPO_NAME}/${CHART_BE}" \
               -n "${E2E_NS}" \
               --set image.repository="${REGISTRY_PULL}/${BE_IMAGE}" \
               --set-string image.tag="${BE_TAG}" \
               --set-string extraEnv.SPRING_DATASOURCE_URL="jdbc:postgresql://pg-postgresql.${E2E_NS}.svc.cluster.local:5432/${DB_NAME}" \
+              --set        extraEnv.SPRING_LIQUIBASE_DEFAULT_SCHEMA="${LB_SCHEMA}" \
+              --set        extraEnv."SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA"="${APP_SCHEMA}" \
               --wait --atomic --timeout 10m
 
             kubectl -n "${E2E_NS}" rollout status deploy -l app=ng-events-backend --timeout=180s
             kubectl -n "${E2E_NS}" run curl-be --rm -i --restart=Never --image=curlimages/curl:8.10.1 -- \
               sh -lc 'code=$(curl -s -o /dev/null -w "%{http_code}" http://events-backend-service:80/actuator/health); [ "$code" = "200" ]'
 
-            helm upgrade --install e2e-ng-frontend "${HELM_REPO_NAME}/${CHART_FE}" \
+            helm upgrade --install ng-events-frontend "${HELM_REPO_NAME}/${CHART_FE}" \
               -n "${E2E_NS}" \
               --set image.repository="${REGISTRY_PULL}/${FE_IMAGE}" \
               --set-string image.tag="${FE_TAG}" \
@@ -261,16 +268,18 @@ pipeline {
 
             ok=0
             for i in $(seq 1 60); do
-              if curl -fsS http://localhost:8088/ >/dev/null; then ok=1; break; fi
+              if curl -fsS -H "Host: ${E2E_HOST}" http://127.0.0.1:8088/ >/dev/null; then
+                ok=1; break
+              fi
               sleep 2
             done
-            [ "$ok" -eq 1 ] || { echo "FE ei vastanud 8088 peal"; exit 1; }
+            [ "$ok" -eq 1 ] || { echo "Frontend did not respond on port 8088"; exit 1; }
 
             docker run --rm --network=host -v "$PWD":/work -w /work node:24-bookworm bash -lc '
               set -eux
               npm ci || npm install
               npx playwright install --with-deps
-              BASE_URL=http://localhost:8088/ PW_USE_WEBSERVER=false npx playwright test
+              BASE_URL="http://'"${E2E_HOST}"':8088/" PW_USE_WEBSERVER=false npx playwright test
             '
 
             kill ${PF_PID} || true
