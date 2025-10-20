@@ -169,7 +169,7 @@ pipeline {
       }
     }
 
-    stage('E2E: DB + BE + FE + Playwright') {
+    stage('E2E: Deploy') {
       agent { docker { image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0' } }
       environment {
         E2E_NS          = "e2e-ng-events"    
@@ -260,83 +260,52 @@ pipeline {
               --wait --atomic --timeout 10m
 
             kubectl -n "${E2E_NS}" rollout status deploy -l app=ng-events-frontend --timeout=180s
-
-            PF_POD="$(kubectl -n ingress-nginx get po -l app.kubernetes.io/component=controller -o jsonpath='{.items[0].metadata.name}')"
-            kubectl -n ingress-nginx port-forward "$PF_POD" 8088:80 >/tmp/pf8088.log 2>&1 &
-            PF_PID=$!
-            sleep 2
-
-            ok=0
-            for i in $(seq 1 60); do
-              if curl -fsS -H "Host: ${E2E_HOST}" http://127.0.0.1:8088/ >/dev/null; then
-                ok=1; break
-              fi
-              sleep 2
-            done
-            [ "$ok" -eq 1 ] || { echo "Frontend did not respond on port 8088"; exit 1; }
-
-            docker run --rm --network=host -v "$PWD":/work -w /work node:24-bookworm bash -lc '
-              set -eux
-              npm ci || npm install
-              npx playwright install --with-deps
-              BASE_URL="http://'"${E2E_HOST}"':8088/" PW_USE_WEBSERVER=false npx playwright test
-            '
-
-            kill ${PF_PID} || true
-          '''
-        }
-      }
-      post {
-        always {
-          // koristus – jäta ära kui tahad jäävaid jälgi
-          sh '''#!/usr/bin/env bash
-            set -euxo pipefail
-            export KUBECONFIG="$PWD/kubeconfig" || true
-            helm uninstall e2e-ng-frontend -n "${E2E_NS}" || true
-            helm uninstall e2e-ng-backend  -n "${E2E_NS}" || true
-            helm uninstall pg              -n "${E2E_NS}" || true
           '''
         }
       }
     }
 
-    stage('E2E (Playwright vs Ingress via port-forward)') {
-      agent { docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy'; args '--ipc=host' } }
+    stage('E2E: Playwright tests') {
+      agent { docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' } }
       environment {
         CI = 'true'
         NG_CLI_ANALYTICS = 'false'
         PW_USE_WEBSERVER = 'false'
-        BASE_URL        = 'http://localhost:8088/'
+        E2E_HOST = 'ng-events-e2e.127.0.0.1.nip.io'
+        BASE_URL = 'http://ng-events-e2e.127.0.0.1.nip.io:8088/'
       }
       steps {
         withCredentials([file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG')]) {
           sh '''#!/usr/bin/env bash
             set -euxo pipefail
-
+    
             apt-get update
             apt-get install -y --no-install-recommends curl ca-certificates
             curl -fsSL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -fsSL https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
             chmod +x /usr/local/bin/kubectl
-
+    
             cp "$KCFG" ./kubeconfig
             chmod 600 ./kubeconfig
             export KUBECONFIG="$PWD/kubeconfig"
-
             grep -q "https://127.0.0.1:6443" ./kubeconfig && \
               sed -i 's#https://127.0.0.1:6443#https://kubernetes.docker.internal:6443#g' ./kubeconfig || true
-
+    
             kubectl -n ingress-nginx port-forward svc/ingress-nginx-controller 8088:80 >/tmp/pf.log 2>&1 &
             echo $! > /tmp/pf.pid
-
+            sleep 2
+    
             for i in $(seq 1 60); do
-              curl -fsS "http://localhost:8088/" && break
+              if curl -fsS -H "Host: ${E2E_HOST}" "http://127.0.0.1:8088/" >/dev/null; then
+                break
+              fi
               sleep 2
             done
-
+    
             node -v; npm -v
             npm ci || npm install
             npx playwright install --with-deps
-            npx playwright test --reporter=junit,line --retries=1
+    
+            PW_USE_WEBSERVER=false BASE_URL="${BASE_URL}" npx playwright test --reporter=junit,line --retries=1
           '''
         }
       }
@@ -347,6 +316,29 @@ pipeline {
           '''
           junit allowEmptyResults: true, testResults: '**/test-results/*.xml,**/playwright-report/*.xml'
           archiveArtifacts artifacts: 'playwright-report/**,playwright-artifacts/**', allowEmptyArchive: true
+        }
+      }
+    }
+
+    stage('E2E: Cleanup') {
+      agent { docker { image 'host.docker.internal:5001/devops/kubectl-helm:3.19.0' } }
+      environment {
+        E2E_NS = 'e2e-ng-events'
+      }
+      steps {
+        withCredentials([file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG')]) {
+          sh '''#!/usr/bin/env bash
+            set -euxo pipefail
+            cp "$KCFG" ./kubeconfig
+            chmod 600 ./kubeconfig
+            export KUBECONFIG="$PWD/kubeconfig"
+
+            pkill -f 'kubectl .* port-forward' || true
+
+            helm uninstall ng-events-frontend -n "${E2E_NS}" || true
+            helm uninstall ng-events-backend  -n "${E2E_NS}" || true
+            helm uninstall pg                 -n "${E2E_NS}" || true
+          '''
         }
       }
     }
