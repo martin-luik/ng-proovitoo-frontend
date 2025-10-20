@@ -159,6 +159,8 @@ pipeline {
               --from-file=initdb.sql=/tmp/initdb.sql \
               --dry-run=client -o yaml | kubectl apply -f -
 
+            kubectl -n "${E2E_NS}" get configmap pg-init -o yaml
+
             helm upgrade --install pg oci://registry-1.docker.io/bitnamicharts/postgresql \
               --version "${PG_CHART_VER}" \
               -n "${E2E_NS}" \
