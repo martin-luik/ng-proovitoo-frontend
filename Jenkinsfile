@@ -159,17 +159,21 @@ pipeline {
               --from-file=initdb.sql=/tmp/initdb.sql \
               --dry-run=client -o yaml | kubectl apply -f -
 
-            kubectl -n "${E2E_NS}" get configmap pg-init -o yaml
-
+            PG_SUPER_PASS="postgres"
             helm upgrade --install pg oci://registry-1.docker.io/bitnamicharts/postgresql \
               --version "${PG_CHART_VER}" \
               -n "${E2E_NS}" \
               --set auth.username="${DB_USER}" \
               --set auth.password="${DB_PASS}" \
               --set auth.database="${DB_NAME}" \
-              --set primary.initdb.user="${DB_USER}" \
+              --set auth.postgresPassword="${PG_SUPER_PASS}" \
+              --set primary.initdb.user=postgres \
+              --set primary.initdb.password="${PG_SUPER_PASS}" \
               --set primary.initdb.scriptsConfigMap=pg-init \
+              --set primary.persistence.enabled=false \
               --wait --timeout 5m
+
+            kubectl -n "${E2E_NS}" rollout status sts/pg-postgresql --timeout=180s
 
             helm repo add "${HELM_REPO_NAME}" "${HELM_REPO_URL}" --username "${HUSER}" --password "${HPASS}" || true
             helm repo update
@@ -267,15 +271,41 @@ pipeline {
         withCredentials([file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG')]) {
           sh '''#!/usr/bin/env bash
             set -euxo pipefail
+    
             cp "$KCFG" ./kubeconfig
             chmod 600 ./kubeconfig
             export KUBECONFIG="$PWD/kubeconfig"
-
+    
+            echo "Before patch:" ; grep -n 'server:' ./kubeconfig || true
+    
+            sed -i \
+              -e 's#https://127\\.0\\.0\\.1:6443#https://kubernetes.docker.internal:6443#g' \
+              -e 's#https://localhost:6443#https://kubernetes.docker.internal:6443#g' \
+              ./kubeconfig || true
+    
+            if grep -q 'https://127.0.0.1:6443' ./kubeconfig || grep -q 'https://localhost:6443' ./kubeconfig; then
+              CLUSTER_NAME="$(kubectl config view --kubeconfig ./kubeconfig -o jsonpath='{.clusters[0].name}')"
+              kubectl config set-cluster "$CLUSTER_NAME" \
+                --server="https://kubernetes.docker.internal:6443" \
+                --kubeconfig ./kubeconfig
+            fi
+    
+            echo "After patch:" ; grep -n 'server:' ./kubeconfig || true
+    
             pkill -f 'kubectl .* port-forward' || true
-
+    
+            for i in $(seq 1 10); do
+              if kubectl version --short >/dev/null 2>&1; then break; fi
+              sleep 2
+            done
+    
             helm uninstall ng-events-frontend -n "${E2E_NS}" || true
             helm uninstall ng-events-backend  -n "${E2E_NS}" || true
             helm uninstall pg                 -n "${E2E_NS}" || true
+    
+            kubectl -n "${E2E_NS}" delete pvc -l app.kubernetes.io/instance=pg || true
+    
+            kubectl -n "${E2E_NS}" delete cm pg-init --ignore-not-found=true || true
           '''
         }
       }
