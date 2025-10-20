@@ -295,7 +295,6 @@ pipeline {
             helm uninstall e2e-ng-frontend -n "${E2E_NS}" || true
             helm uninstall e2e-ng-backend  -n "${E2E_NS}" || true
             helm uninstall pg              -n "${E2E_NS}" || true
-            kubectl delete ns "${E2E_NS}" --ignore-not-found=true || true
           '''
         }
       }
