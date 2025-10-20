@@ -244,9 +244,7 @@ pipeline {
               -n "${E2E_NS}" \
               --set image.repository="${REGISTRY_PULL}/${BE_IMAGE}" \
               --set-string image.tag="${BE_TAG}" \
-              --set-string extraEnv.SPRING_DATASOURCE_URL="jdbc:postgresql://pg-postgresql.${E2E_NS}.svc.cluster.local:5432/${DB_NAME}" \
-              --set        extraEnv.SPRING_LIQUIBASE_DEFAULT_SCHEMA="${LB_SCHEMA}" \
-              --set        extraEnv."SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA"="${APP_SCHEMA}" \
+              --set-string config.SPRING_DATASOURCE_URL="jdbc:postgresql://pg-postgresql.${E2E_NS}.svc.cluster.local:5432/${DB_NAME}?currentSchema=${APP_SCHEMA}" \
               --wait --atomic --timeout 10m
 
             kubectl -n "${E2E_NS}" rollout status deploy -l app=ng-events-backend --timeout=180s
