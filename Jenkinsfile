@@ -201,7 +201,12 @@ pipeline {
     }
 
     stage('E2E: Playwright tests') {
-      agent { docker { image 'mcr.microsoft.com/playwright:v1.47.2-jammy' } }
+      agent { 
+        docker { 
+          image 'host.docker.internal:5001/devops/playwright:v1.47.2-jammy'
+          args '--ipc=host' 
+        } 
+      }
       environment {
         CI = 'true'
         NG_CLI_ANALYTICS = 'false'
@@ -213,11 +218,6 @@ pipeline {
         withCredentials([file(credentialsId: 'kubeconfig-ng-events', variable: 'KCFG')]) {
           sh '''#!/usr/bin/env bash
             set -euxo pipefail
-    
-            apt-get update
-            apt-get install -y --no-install-recommends curl ca-certificates
-            curl -fsSL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/$(curl -fsSL https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-            chmod +x /usr/local/bin/kubectl
     
             cp "$KCFG" ./kubeconfig
             chmod 600 ./kubeconfig
