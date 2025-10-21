@@ -12,8 +12,7 @@ pipeline {
     stage('Build & Test') {
       agent {
         docker {
-          image 'node:24-bookworm'
-          args  '-u root:root'
+          image 'host.docker.internal:5001/devops/node-chromium:24'
           reuseNode true
         }
       }
@@ -26,12 +25,6 @@ pipeline {
       steps {
         sh '''#!/usr/bin/env bash
           set -Eeuo pipefail
-      
-          apt-get update
-          apt-get install -y --no-install-recommends \
-            chromium ca-certificates git \
-            libnss3 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0 fonts-liberation
-          rm -rf /var/lib/apt/lists/*
       
           node -v
           npm -v
